@@ -1,0 +1,6 @@
+@Ottawa_Tech___BackEnd_HostAddress = http://localhost:5160
+
+GET {{Ottawa_Tech___BackEnd_HostAddress}}/ControleUsuario/
+Accept: application/json
+
+###
