@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Ottawa_Tech___BackEnd.Classes;
+using Ottawa_Tech___BackEnd.Models;
 
 namespace Ottawa_Tech___BackEnd.Controllers;
 
@@ -8,21 +8,22 @@ namespace Ottawa_Tech___BackEnd.Controllers;
 public class ControleUsuario : ControllerBase
 {
     [HttpGet]
-    public Usuario RetornoUsuario()
+    public Cliente RetornoUsuario()
     {
-        Usuario usuario1 = new Usuario();
+        Cliente Cliente = new Cliente();
 
-        usuario1.Nome = "Alexandre";
-        usuario1.Email = "alexandre@email.com";
-        usuario1.Idade = 30;
+        Cliente.Id = 0;
+        Cliente.Nome = "Alexandre";
+        Cliente.Email = "alexandre@email.com";
+        Cliente.Idade = 30;
 
-        return usuario1;
+        return Cliente;
     }
 
     [HttpPost]
-    public Usuario CriarUsuario(Usuario usuario1)
+    public Cliente CriarUsuario(Cliente cliente)
     {
-        usuario1.UsuarioAtivo = true;
-        return usuario1;
+        cliente.ClienteAtivo = true;
+        return cliente;
     }
 }
