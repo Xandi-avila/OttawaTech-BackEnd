@@ -2,10 +2,13 @@
 {
     public class Cliente
     {
-        public int Id;
-        public bool ClienteAtivo;
-        public string? Nome;
-        public int? Idade;
-        public string? Email;
+        public int Id { get; set; }
+        public string Nome { get; set; }
+        public string? Cpf { get; set; }
+        public int? Telefone { get; set; }
+        public string? Email { get; set; }
+        public DateOnly? DataNascimento { get; set; }
+        public string Senha { get; set; }
+        public bool ClienteAtivo { get; set; }
     }
 }

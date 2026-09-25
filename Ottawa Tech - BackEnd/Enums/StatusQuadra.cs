@@ -1,6 +1,9 @@
 ﻿namespace Ottawa_Tech___BackEnd.Enums
 {
-    public class StatusQuadra
+    public enum StatusQuadra
     {
+        Ativo = 1,
+        Inativo = 2,
+        Manutencao = 3
     }
 }
