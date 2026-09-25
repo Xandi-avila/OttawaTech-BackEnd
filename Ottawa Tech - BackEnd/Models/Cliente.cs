@@ -10,5 +10,6 @@
         public DateOnly? DataNascimento { get; set; }
         public string Senha { get; set; }
         public bool ClienteAtivo { get; set; }
+        public ICollection<Reserva> Reservas { get; set; } = [];
     }
 }

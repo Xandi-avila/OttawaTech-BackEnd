@@ -8,6 +8,7 @@
         public string Metodo { get; set; }
         public bool Status { get; set; }
         public DateTime DataPagamento { get; set; }
+        public Reserva Reserva { get; set; }
     }
 }
 

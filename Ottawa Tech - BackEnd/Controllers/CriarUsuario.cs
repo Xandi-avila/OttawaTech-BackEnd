@@ -15,7 +15,6 @@ public class ControleUsuario : ControllerBase
         Cliente.Id = 0;
         Cliente.Nome = "Alexandre";
         Cliente.Email = "alexandre@email.com";
-        Cliente.Idade = 30;
 
         return Cliente;
     }

@@ -7,5 +7,6 @@
         public string Tipo { get; set; }
         public decimal ValorHora { get; set; }
         public bool Status { get; set; }
+        public ICollection<Reserva> Reservas { get; set; } = [];
     }
 }
