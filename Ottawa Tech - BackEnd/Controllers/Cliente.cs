@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ottawa_Tech___BackEnd.Data;
 using Ottawa_Tech___BackEnd.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ottawa_Tech___BackEnd.Controllers;
 
@@ -15,6 +16,24 @@ public class ClientesController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ObterTodosClientes()
+    {
+        var clientes = await _context.Clientes.ToListAsync();
+        return Ok(clientes);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> ObterPorId(int id)
+    {
+        var cliente = await _context.Clientes.FindAsync(id);
+        if (cliente == null)
+        {
+            return NotFound("O id informado não existe.");
+        }
+        return Ok(cliente);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CriarCliente([FromBody] Cliente cliente)
     {
@@ -25,14 +44,36 @@ public class ClientesController : ControllerBase
         return CreatedAtAction(nameof(CriarCliente), new { id = cliente.Id }, cliente);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> ObterPorId(int id)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> AlterarCliente(int id, [FromBody] Cliente cliente)
     {
-        var cliente = await _context.Clientes.FindAsync(id);
-        if (cliente == null)
+        if (cliente.Id != 0 && cliente.Id != id)
         {
-            return NotFound("O cliente informado não existe.");
+            return BadRequest("O ID da URL não corresponde ao ID enviado no corpo.");
         }
-        return Ok(cliente);
+
+        var alterarCliente = await _context.Clientes.FindAsync(id);
+
+        if (alterarCliente == null)
+        {
+            return NotFound("O id informado não existe.");
+        }
+        alterarCliente.Nome = cliente.Nome;
+        await _context.SaveChangesAsync();
+        return Ok(alterarCliente);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletarCliente(int id)
+    {
+        var deletarCliente = await _context.Clientes.FindAsync(id);
+
+        if (deletarCliente == null)
+        {
+            return NotFound("O id informado não existe.");
+        }
+        _context.Clientes.Remove(deletarCliente);
+        await _context.SaveChangesAsync();
+        return Ok(deletarCliente);
     }
 }
