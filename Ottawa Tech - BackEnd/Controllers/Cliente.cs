@@ -59,6 +59,30 @@ public class ClientesController : ControllerBase
             return NotFound("O id informado não existe.");
         }
         alterarCliente.Nome = cliente.Nome;
+        alterarCliente.Cpf = cliente.Cpf;
+        alterarCliente.Telefone = cliente.Telefone;
+        alterarCliente.Email = cliente.Email;
+        alterarCliente.DataNascimento = cliente.DataNascimento;
+        alterarCliente.Senha = cliente.Senha;
+        await _context.SaveChangesAsync();
+        return Ok(alterarCliente);
+    }
+
+    [HttpPut("Situacao/{id}")]
+    public async Task<IActionResult> AlterarSituacao(int id, [FromBody] Cliente cliente)
+    {
+        if (cliente.Id != 0 && cliente.Id != id)
+        {
+            return BadRequest("O ID da URL não corresponde ao ID enviado no corpo.");
+        }
+
+        var alterarCliente = await _context.Clientes.FindAsync(id);
+
+        if (alterarCliente == null)
+        {
+            return NotFound("O id informado não existe.");
+        }
+        alterarCliente.Situacao = cliente.Situacao;
         await _context.SaveChangesAsync();
         return Ok(alterarCliente);
     }

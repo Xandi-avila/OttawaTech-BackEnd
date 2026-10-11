@@ -1,4 +1,6 @@
-﻿namespace Ottawa_Tech___BackEnd.Models
+﻿using Ottawa_Tech___BackEnd.Enums;
+
+namespace Ottawa_Tech___BackEnd.Models
 {
     public class Cliente
     {
@@ -9,7 +11,7 @@
         public string? Email { get; set; }
         public DateOnly? DataNascimento { get; set; }
         public string Senha { get; set; }
-        public bool ClienteAtivo { get; set; }
+        public StatusCliente Situacao { get; set; }
         public ICollection<Reserva> Reservas { get; set; } = [];
     }
 }

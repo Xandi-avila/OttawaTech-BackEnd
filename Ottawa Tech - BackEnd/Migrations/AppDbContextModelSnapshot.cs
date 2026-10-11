@@ -23,9 +23,6 @@ namespace Ottawa_Tech___BackEnd.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("ClienteAtivo")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Cpf")
                         .HasColumnType("TEXT");
 
@@ -42,6 +39,9 @@ namespace Ottawa_Tech___BackEnd.Migrations
                     b.Property<string>("Senha")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Situacao")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Telefone")
                         .HasColumnType("INTEGER");

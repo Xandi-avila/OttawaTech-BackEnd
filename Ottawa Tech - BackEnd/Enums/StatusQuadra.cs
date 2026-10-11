@@ -4,6 +4,7 @@
     {
         Ativo = 1,
         Inativo = 2,
-        Manutencao = 3
+        Ocupado = 3,
+        Manutencao = 4
     }
 }

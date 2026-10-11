@@ -2,9 +2,7 @@
 {
     public enum StatusCliente
     {
-        Ativo = 1,
-        Inativo = 2
+        Ativo = 0,
+        Inativo = 1
     }
 }
-
-
