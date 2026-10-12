@@ -18,10 +18,26 @@ namespace Ottawa_Tech___BackEnd.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObeterQuadras()
+        public async Task<IActionResult> ObeterQuadras([FromQuery] int pagina = 1, [FromQuery] int porPagina = 10)
         {
-            var quadras = await _context.Quadras.ToListAsync();
-            return Ok(quadras);
+            IQueryable<Quadra> query = _context.Quadras;
+
+            int totalRegistros = await query.CountAsync();
+
+            var quadrasPaginadas = await query
+                .Skip((pagina - 1) * porPagina)
+                .Take(porPagina)
+                .ToListAsync();
+            var resultado = new
+            {
+                TotalItens = totalRegistros,
+                PaginaAtual = pagina,
+                TamanhoPagina = porPagina,
+                TotalPaginas = (int)Math.Ceiling((double)totalRegistros / porPagina),
+                Dados = quadrasPaginadas
+            };
+
+            return Ok(resultado);
         }
 
         [HttpGet("Filtrar")]
@@ -30,16 +46,43 @@ namespace Ottawa_Tech___BackEnd.Controllers
             IQueryable<Quadra> query = _context.Quadras;
 
             if (!string.IsNullOrWhiteSpace(filtro.Nome))
-                query = query.Where(q => q.Nome.Contains(filtro.Nome));
+                query = query.Where(quadra => quadra.Nome.Contains(filtro.Nome));
 
             if (!string.IsNullOrWhiteSpace(filtro.Tipo))
-                query = query.Where(q => q.Tipo.Contains(filtro.Tipo));
+                query = query.Where(quadra => quadra.Tipo.Contains(filtro.Tipo));
 
             if (filtro.Status.HasValue)
-                query = query.Where(q => q.Status == filtro.Status.Value);
+                query = query.Where(quadra => quadra.Status == filtro.Status.Value);
 
             if (filtro.ValorMaximo.HasValue)
-                query = query.Where(q => q.ValorHora <= filtro.ValorMaximo.Value);
+                query = query.Where(quadra => quadra.ValorHora <= filtro.ValorMaximo.Value);
+
+            if (filtro.DataInicio.HasValue && filtro.DataFim.HasValue)
+            {
+                // Antes da query rodar extraio o times pures para não ter erro na compilação.
+                var dataFiltro = DateOnly.FromDateTime(filtro.DataInicio.Value);
+                var horaInicioFiltro = TimeOnly.FromDateTime(filtro.DataInicio.Value);
+                var horaFimFiltro = TimeOnly.FromDateTime(filtro.DataFim.Value);
+
+                // Quadras sem nenhuma reserva que conflite no mesmo dia / horario.
+                query = query.Where(quadra => !quadra.Reservas.Any(reserva =>
+                    reserva.Data == dataFiltro &&
+                    horaInicioFiltro < reserva.HoraFim &&
+                    horaFimFiltro > reserva.HoraInicio
+                ));
+            }
+            else if (filtro.DataInicio.HasValue)
+            {
+                var dataFiltro = DateOnly.FromDateTime(filtro.DataInicio.Value);
+                var horaInicioFiltro = TimeOnly.FromDateTime(filtro.DataInicio.Value);
+
+                // Se for enviado somente a Data inicio chega se ta livre naquele dia / horario.
+                query = query.Where(quadra => !quadra.Reservas.Any(reserva =>
+                    reserva.Data == dataFiltro &&
+                    horaInicioFiltro >= reserva.HoraInicio &&
+                    horaInicioFiltro < reserva.HoraFim
+                ));
+            }
 
             int totalRegistros = await query.CountAsync();
             if (totalRegistros == 0)

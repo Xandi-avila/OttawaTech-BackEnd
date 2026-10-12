@@ -15,5 +15,10 @@ namespace Ottawa_Tech___BackEnd.Queries
         public int Pagina { get; set; } = 1;
 
         public int PorPagina { get; set; } = 10;
+
+        // Filtro de datas
+        public DateTime? DataInicio { get; set; }
+
+        public DateTime? DataFim { get; set; }
     }
 }
