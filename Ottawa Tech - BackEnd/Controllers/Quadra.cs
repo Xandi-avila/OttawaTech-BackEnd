@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ottawa_Tech___BackEnd.Data;
-using Ottawa_Tech___BackEnd.Enums;
 using Ottawa_Tech___BackEnd.Models;
 using Ottawa_Tech___BackEnd.Queries;
 

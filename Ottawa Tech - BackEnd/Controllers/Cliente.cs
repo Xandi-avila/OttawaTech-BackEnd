@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Ottawa_Tech___BackEnd.Data;
 using Ottawa_Tech___BackEnd.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Ottawa_Tech___BackEnd.Controllers;
 

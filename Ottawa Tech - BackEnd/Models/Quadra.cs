@@ -1,5 +1,4 @@
 ﻿using Ottawa_Tech___BackEnd.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Ottawa_Tech___BackEnd.Models
 {
