@@ -2,9 +2,9 @@
 {
     public enum StatusQuadra
     {
+        Inativo = 0,
         Ativo = 1,
-        Inativo = 2,
-        Ocupado = 3,
-        Manutencao = 4
+        Ocupado = 2,
+        Manutenção = 3
     }
 }

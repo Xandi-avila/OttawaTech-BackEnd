@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ottawa_Tech___BackEnd.Data;
-using Ottawa_Tech___BackEnd.Models;
 using Microsoft.EntityFrameworkCore;
+using Ottawa_Tech___BackEnd.Data;
+using Ottawa_Tech___BackEnd.Enums;
+using Ottawa_Tech___BackEnd.Models;
+using Ottawa_Tech___BackEnd.Queries;
 
 namespace Ottawa_Tech___BackEnd.Controllers
 {
@@ -21,6 +23,42 @@ namespace Ottawa_Tech___BackEnd.Controllers
         {
             var quadras = await _context.Quadras.ToListAsync();
             return Ok(quadras);
+        }
+
+        [HttpGet("Filtrar")]
+        public async Task<IActionResult> ObeterQuadrasSituacao([FromQuery] BuscarQuadrasQuery filtro)
+        {
+            IQueryable<Quadra> query = _context.Quadras;
+
+            if (!string.IsNullOrWhiteSpace(filtro.Nome))
+                query = query.Where(q => q.Nome.Contains(filtro.Nome));
+
+            if (!string.IsNullOrWhiteSpace(filtro.Tipo))
+                query = query.Where(q => q.Tipo.Contains(filtro.Tipo));
+
+            if (filtro.Status.HasValue)
+                query = query.Where(q => q.Status == filtro.Status.Value);
+
+            if (filtro.ValorMaximo.HasValue)
+                query = query.Where(q => q.ValorHora <= filtro.ValorMaximo.Value);
+
+            int totalRegistros = await query.CountAsync();
+            if (totalRegistros == 0)
+                return NotFound("Nenhuma quadra encontrada para os filtros aplicados!");
+
+            var quadrasPaginadas = await query
+                .Skip((filtro.Pagina - 1) * filtro.PorPagina)
+                .Take(filtro.PorPagina)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                TotalItens = totalRegistros,
+                PaginaAtual = filtro.Pagina,
+                TamanhoPagina = filtro.PorPagina,
+                TotalPaginas = (int)Math.Ceiling((double)totalRegistros / filtro.PorPagina),
+                Dados = quadrasPaginadas
+            });
         }
 
         [HttpGet("{id}")]
