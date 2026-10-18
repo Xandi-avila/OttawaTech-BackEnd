@@ -8,7 +8,7 @@ namespace Ottawa_Tech___BackEnd.Queries
         public string? Nome { get; set; }
 
         public string? Tipo { get; set; }
-        public StatusQuadra? Status { get; set; }
+        public StatusQuadraEnum? Status { get; set; }
         public decimal? ValorMaximo { get; set; }
 
         // Paginação

@@ -2,7 +2,7 @@
 
 namespace Ottawa_Tech___BackEnd.Models
 {
-    public class Cliente
+    public class ClienteModel
     {
         public int Id { get; set; }
         public string Nome { get; set; }
@@ -11,7 +11,7 @@ namespace Ottawa_Tech___BackEnd.Models
         public string? Email { get; set; }
         public DateOnly? DataNascimento { get; set; }
         public string Senha { get; set; }
-        public StatusCliente Situacao { get; set; }
-        public ICollection<Reserva> Reservas { get; set; } = [];
+        public StatusClienteEnum Situacao { get; set; }
+        public ICollection<ReservaModel> Reservas { get; set; } = [];
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Ottawa_Tech___BackEnd.Enums
 {
-    public enum StatusReserva
+    public enum StatusReservaEnum
     {
         Pendente = 1,
         Confirmada = 2,

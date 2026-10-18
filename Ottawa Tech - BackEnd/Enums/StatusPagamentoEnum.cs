@@ -1,6 +1,6 @@
 ﻿namespace Ottawa_Tech___BackEnd.Enums
 {
-    public enum StatusPagamento
+    public enum StatusPagamentoEnum
     {
         Pendente = 1,
         Pago = 2,

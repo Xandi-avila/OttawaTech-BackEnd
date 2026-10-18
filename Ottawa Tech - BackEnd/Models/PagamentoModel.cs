@@ -1,6 +1,6 @@
 ﻿namespace Ottawa_Tech___BackEnd.Models
 {
-    public class Pagamento
+    public class PagamentoModel
     {
         public int Id { get; set; }
         public int ReservaId { get; set; }
@@ -8,6 +8,6 @@
         public string Metodo { get; set; }
         public bool Status { get; set; }
         public DateTime DataPagamento { get; set; }
-        public Reserva Reserva { get; set; }
+        public ReservaModel Reserva { get; set; }
     }
 }

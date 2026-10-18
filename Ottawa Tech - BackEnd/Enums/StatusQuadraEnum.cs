@@ -1,6 +1,6 @@
 ﻿namespace Ottawa_Tech___BackEnd.Enums
 {
-    public enum StatusQuadra
+    public enum StatusQuadraEnum
     {
         Inativo = 0,
         Ativo = 1,

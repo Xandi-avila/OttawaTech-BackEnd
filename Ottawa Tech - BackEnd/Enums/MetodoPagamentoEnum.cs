@@ -1,6 +1,6 @@
 ﻿namespace Ottawa_Tech___BackEnd.Enums
 {
-    public enum MetodoPagamento
+    public enum MetodoPagamentoEnum
     {
         Pix = 1,
         Cartao = 2,

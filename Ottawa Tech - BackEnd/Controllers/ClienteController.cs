@@ -16,6 +16,16 @@ public class ClientesController : ControllerBase
         _context = context;
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CriarCliente([FromBody] ClienteModel cliente)
+    {
+        await _context.Clientes.AddAsync(cliente);
+
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(CriarCliente), new { id = cliente.Id }, cliente);
+    }
+
     [HttpGet]
     public async Task<IActionResult> ObterTodosClientes()
     {
@@ -24,7 +34,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> ObterPorId(int id)
+    public async Task<IActionResult> ObterClienteId(int id)
     {
         var cliente = await _context.Clientes.FindAsync(id);
         if (cliente == null)
@@ -34,18 +44,8 @@ public class ClientesController : ControllerBase
         return Ok(cliente);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CriarCliente([FromBody] Cliente cliente)
-    {
-        await _context.Clientes.AddAsync(cliente);
-
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(CriarCliente), new { id = cliente.Id }, cliente);
-    }
-
     [HttpPut("{id}")]
-    public async Task<IActionResult> AlterarCliente(int id, [FromBody] Cliente cliente)
+    public async Task<IActionResult> AlterarCliente(int id, [FromBody] ClienteModel cliente)
     {
         if (cliente.Id != 0 && cliente.Id != id)
         {
@@ -69,7 +69,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpPut("Situacao/{id}")]
-    public async Task<IActionResult> AlterarSituacao(int id, [FromBody] Cliente cliente)
+    public async Task<IActionResult> AlterarSituacaoCliente(int id, [FromBody] ClienteModel cliente)
     {
         if (cliente.Id != 0 && cliente.Id != id)
         {
