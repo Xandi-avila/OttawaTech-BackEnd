@@ -1,6 +1,59 @@
-@Ottawa_Tech___BackEnd_HostAddress = http://localhost:5160
+@api = http://localhost:5160/api
 
-GET {{Ottawa_Tech___BackEnd_HostAddress}}/ControleUsuario/
-Accept: application/json
+# @name loginAdmin
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "email": "admin@arena.com", "senha": "admin123" }
 
 ###
+
+# @name loginCliente
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "email": "isadora@email.com", "senha": "123456" }
+
+###
+
+@admin = {{loginAdmin.response.body.$.token}}
+@cliente = {{loginCliente.response.body.$.token}}
+
+GET {{api}}/quadras
+Authorization: Bearer {{cliente}}
+
+###
+
+GET {{api}}/quadras/1/disponibilidade?data=2026-12-15
+Authorization: Bearer {{cliente}}
+
+###
+
+POST {{api}}/reservas
+Authorization: Bearer {{cliente}}
+Content-Type: application/json
+
+{ "clienteId": 1, "quadraId": 1, "data": "2026-12-15", "horaInicio": "10:00:00", "horaFim": "11:30:00" }
+
+###
+
+GET {{api}}/reservas
+Authorization: Bearer {{cliente}}
+
+###
+
+POST {{api}}/pagamentos
+Authorization: Bearer {{cliente}}
+Content-Type: application/json
+
+{ "reservaId": 1, "metodo": 1 }
+
+###
+
+GET {{api}}/clientes?busca=isadora&status=1
+Authorization: Bearer {{admin}}
+
+###
+
+GET {{api}}/pagamentos?status=1
+Authorization: Bearer {{admin}}

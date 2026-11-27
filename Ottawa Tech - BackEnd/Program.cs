@@ -1,39 +1,62 @@
-using Microsoft.EntityFrameworkCore;
-using Ottawa_Tech___BackEnd.Data;
+using Microsoft.AspNetCore.Mvc;
+using OttawaTech.BackEnd.Configuracao;
+using OttawaTech.BackEnd.Data;
+using OttawaTech.BackEnd.Erros;
+using OttawaTech.BackEnd.Seguranca;
+using OttawaTech.BackEnd.Services;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+if (Environment.GetEnvironmentVariable("PORT") is { Length: > 0 } porta)
+    builder.WebHost.UseUrls($"http://0.0.0.0:{porta}");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.Configure<ArenaOptions>(builder.Configuration.GetSection(ArenaOptions.Secao));
+builder.Services.Configure<MvcOptions>(opcoes => opcoes.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-    });
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddControllers().ResponderValidacaoEmPortugues();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<TratadorDeErros>();
+builder.Services.AddDocumentacao();
+builder.Services.AddCorsDoFront(builder.Configuration);
+builder.Services.AddAutenticacaoJwt(builder.Configuration);
+builder.Services.AddBancoDeDados(builder.Configuration);
+
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<RelogioArena>();
+builder.Services.AddSingleton<ServicoDeSenha>();
+builder.Services.AddSingleton<GeradorDeToken>();
+builder.Services.AddScoped<DadosDemo>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ClienteService>();
+builder.Services.AddScoped<QuadraService>();
+builder.Services.AddScoped<ReservaService>();
+builder.Services.AddScoped<PagamentoService>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
-}
+await PrepararBancoAsync(app);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+app.UseCorsDoFront();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapOpenApi();
+app.MapScalarApiReference();
+app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.Run();
+
+static async Task PrepararBancoAsync(WebApplication app)
+{
+    using var escopo = app.Services.CreateScope();
+    var servicos = escopo.ServiceProvider;
+
+    await servicos.GetRequiredService<AppDbContext>().Database.EnsureCreatedAsync();
+
+    if (app.Configuration.GetValue<bool>("Arena:SemearDadosDemo"))
+        await servicos.GetRequiredService<DadosDemo>().SemearAsync();
+}

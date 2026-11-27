@@ -25,6 +25,10 @@
 - [Modelo de Dados](#-modelo-de-dados)
 - [Enums](#-enums)
 - [Estrutura do Backend](#-estrutura-do-backend)
+- [Como executar](#-como-executar)
+- [Configuração](#-configuração)
+- [Publicação na Vercel](#-publicação-na-vercel)
+- [Contrato com o front](#-contrato-com-o-front)
 - [Endpoints](#-endpoints)
 - [Sprints](#-sprints)
 - [Backlog](#-backlog)
@@ -727,48 +731,90 @@ public enum MetodoPagamento
 }
 
 🗂️ Estrutura do Backend
-A estrutura inicial do Backend será organizada da seguinte maneira:
 
-Backend/
-│
-├── Controllers/
-│
-├── DTOs/
-│   ├── Clientes/
-│   ├── Quadras/
-│   ├── Reservas/
-│   ├── Pagamentos/
-│   └── Auth/
-│
-├── Services/
-│   ├── ClienteService.cs
-│   ├── QuadraService.cs
-│   ├── ReservaService.cs
-│   ├── PagamentoService.cs
-│   └── AuthService.cs
-│
-├── Entities/
-│   ├── Cliente.cs
-│   ├── Quadra.cs
-│   ├── Reserva.cs
-│   └── Pagamento.cs
-│
-├── Enums/
-│   ├── StatusCliente.cs
-│   ├── StatusQuadra.cs
-│   ├── StatusReserva.cs
-│   ├── StatusPagamento.cs
-│   └── MetodoPagamento.cs
-│
-├── Data/
-│   └── AppDbContext.cs
-│
-├── Migrations/
-│
+```text
+Ottawa Tech - BackEnd/
+├── Configuracao/   opções (Arena, Jwt) e registro de banco, JWT, CORS e OpenAPI
+├── Controllers/    Auth, Clientes, Quadras, Reservas e Pagamentos (somente HTTP)
+├── Data/           AppDbContext e dados de demonstração
+├── DTOs/           Auth/, Clientes/, Quadras/, Reservas/, Pagamentos/
+├── Enums/          StatusCliente, StatusQuadra, StatusReserva, StatusPagamento, MetodoPagamento, Perfis
+├── Erros/          ApiException e tratador global (respostas ProblemDetails em português)
+├── Models/         Administrador, Cliente, Quadra, Reserva, Pagamento
+├── Regras/         regras puras: CPF/e-mail/telefone, reserva (RN03–RN09) e pagamento
+├── Seguranca/      hash de senha, geração do JWT e usuário da requisição
+├── Services/       casos de uso (AuthService, ClienteService, QuadraService, ReservaService, PagamentoService)
 ├── Program.cs
 └── appsettings.json
+```
 
-A principal finalidade dessa organização é evitar que regras de negócio sejam concentradas diretamente nos Controllers.
+Os Controllers só recebem a requisição e chamam os Services; as regras de negócio ficam nos Services e em `Regras/`.
+
+🚀 Como executar
+
+Pré-requisito: [.NET SDK 10](https://dotnet.microsoft.com/download).
+
+```bash
+cd "Ottawa Tech - BackEnd"
+dotnet run --launch-profile http
+```
+
+- API: `http://localhost:5160/api`
+- Documentação interativa (Scalar): `http://localhost:5160/scalar`
+- OpenAPI: `http://localhost:5160/openapi/v1.json`
+
+Na primeira execução o banco SQLite (`arena.db`) é criado e preenchido com os mesmos dados de demonstração do front:
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Administrador | admin@arena.com | admin123 |
+| Cliente | isadora@email.com | 123456 |
+
+Para apagar os dados e começar de novo, basta excluir o `arena.db` e rodar outra vez.
+
+No front, use o modo HTTP (`VITE_API_MODE=http`, `VITE_API_BASE_URL=/api`, `VITE_BACKEND_URL=http://localhost:5160`).
+
+⚙️ Configuração
+
+| Chave (variável de ambiente) | Uso | Padrão |
+|---|---|---|
+| `Jwt__Chave` | Chave de assinatura do token, com pelo menos 32 caracteres. **Obrigatória fora do ambiente Development.** | — |
+| `Jwt__ValidadeHoras` | Validade do token em horas | `8` |
+| `DATABASE_URL` ou `ConnectionStrings__Postgres` | Banco PostgreSQL. Sem nenhum dos dois, usa SQLite. | — |
+| `ConnectionStrings__Sqlite` | Arquivo SQLite | `Data Source=arena.db` |
+| `Cors__Origens` | Origens do front liberadas, separadas por vírgula. Vazio libera qualquer origem. | vazio |
+| `Arena__FusoHorario` | Fuso usado em "hoje", horários passados e cancelamento | `America/Sao_Paulo` |
+| `Arena__SemearDadosDemo` | Cria os dados de demonstração quando o banco está vazio | `true` |
+| `PORT` | Porta HTTP do servidor | `5160` local, `80` no container |
+
+As tabelas são criadas automaticamente na inicialização (`EnsureCreated`), tanto no SQLite quanto no PostgreSQL.
+
+☁️ Publicação na Vercel
+
+A Vercel não tem runtime nativo de .NET, então a API é publicada como container pelo `Dockerfile` da raiz do repositório.
+
+1. Na Vercel, **Add New → Project** e importe este repositório (Root Directory: a raiz, onde está o `Dockerfile`).
+2. Em **Storage**, crie um banco **Neon (Postgres)** e conecte ao projeto: a Vercel cria a variável `DATABASE_URL`. Sem ela a API usa SQLite em `/tmp`, que é apagado a cada nova instância (serve só para demonstração).
+3. Em **Settings → Environment Variables**, cadastre:
+   - `Jwt__Chave`: um texto aleatório com 32 caracteres ou mais;
+   - `Cors__Origens`: o endereço do front, ex. `https://court-manager.vercel.app`.
+4. Faça o deploy e abra `https://<api>.vercel.app/scalar` para conferir.
+5. No projeto do front na Vercel, configure `VITE_API_MODE=http` e `VITE_API_BASE_URL=https://<api>.vercel.app/api` e publique de novo.
+
+Para testar o container localmente:
+
+```bash
+docker build -t ottawa-tech-api .
+docker run -p 8080:80 -e Jwt__Chave=uma-chave-local-com-mais-de-32-caracteres ottawa-tech-api
+```
+
+📐 Contrato com o front
+
+- JSON em camelCase; enums como números (ver [Enums](#-enums)); datas `YYYY-MM-DD`, horários `HH:mm:ss` e data/hora em UTC (`...Z`).
+- Autenticação: `POST /api/auth/login` e `POST /api/auth/register` devolvem `{ token, expiraEm, usuario: { id, nome, email, perfil, clienteId } }`. As demais rotas exigem `Authorization: Bearer <token>`.
+- Erros no formato ProblemDetails, com a mensagem em português em `detail` e o campo com problema em `errors`: 400 (dados inválidos), 401 (não autenticado), 403 (sem permissão), 404 (não encontrado) e 409 (conflito: RN01, RN02, RN04, RN10).
+- O cliente só acessa o próprio cadastro, as próprias reservas e os próprios pagamentos; listar clientes, cadastrar/alterar/inativar quadras e confirmar pagamentos é só do administrador.
+- Pagamento simulado: Pix e Cartão ficam **Pago** na hora; Dinheiro fica **Pendente** até a administração confirmar. Ao cancelar a reserva, o pagamento pago vira **Estornado** e o pendente vira **Cancelado**. Reserva confirmada cujo horário já terminou passa a **Concluída**.
 
 🌐 Endpoints
 Clientes
